@@ -1,54 +1,32 @@
+import java.util.Objects;
 
-import java.time.LocalDateTime;
-import java.util.List;
+public abstract class User {
+    private final int id;
+    private final String name;
+    private final String email;
+    private final String password; // no cifrada, solo para ejemplo
 
-public abstract class User
-{
-    protected int id;
-    protected String name, email, password;
-    protected LocalDateTime registerDate;
-
-    User(int id, String name, String email, String password, LocalDateTime registerDate)//constructor
-    {
+    protected User(int id, String name, String email, String password) {
         this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.registerDate = registerDate;
+        this.name = Objects.requireNonNull(name);
+        this.email = Objects.requireNonNull(email).toLowerCase();
+        this.password = Objects.requireNonNull(password);
     }
 
-    public abstract List<String> getPermissions(); //metodos que deben tener editor y admin
-    public abstract boolean canMakeActions();
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public String getEmail() { return email; }
 
-    public boolean emailValidation() //chamba de sebas
-    {
-        return true; 
+    public boolean authenticate(String pwd) {
+        return password.equals(pwd);
     }
 
+    public abstract boolean canCreate();
+    public abstract boolean canEdit();
+    public abstract boolean canPublish();
+    public abstract boolean canDelete();
 
-    public boolean passwordValidation() //chamba de sebas
-    {
-        return true;
-    }
-
-    public String toString() //to string default
-    {
-        return "User ID: " + id + ", Name: " + name + ", Email: " + email + ", Registered On: " + registerDate.toString();
-    }
-
-    public int getId() {  //Getters (no se si password debería tener getter)
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public LocalDateTime getRegisterDate() {
-        return registerDate;
+    @Override public String toString() {
+        return getClass().getSimpleName() + "(" + id + ", " + name + ", " + email + ")";
     }
 }

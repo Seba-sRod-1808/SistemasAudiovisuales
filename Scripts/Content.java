@@ -1,104 +1,88 @@
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
+public abstract class Content implements Comparable<Content> {
+    private final int id;
+    private String title;
+    final String author;
+    private String body;
+    private State state;
+    private Category category;
+    private final List<Tags> tags = new ArrayList<>();
+    private final LocalDateTime createdAt;
+    private LocalDateTime publishedAt;
+    private int views;
+    private int likes;
 
-public class Content
-{
-    protected int id;
-    protected String title, description;
-    protected LocalDateTime creationDate, publicationDate;
-    protected User author;
-    protected State state;
-    protected List<Tags> tags;
-    protected Category category;
-
-    Content(int id, String title, String description, LocalDateTime creationDate, LocalDateTime publicationDate, User author, State state, List<Tags> tags, Category category)
-    {
+    protected Content(int id, String title, String author, String body) {
         this.id = id;
-        this.title = title;
-        this.description = description;
-        this.creationDate = creationDate;
-        this.publicationDate = publicationDate;
-        this.author = author;
-        this.state = state;
-        this.tags = tags;
-        this.category = category;
-    }
-
-    public String toString() //to string default
-    {
-        return "Content ID: " + id + ", Title: " + title + ", Description: " + description + ", Created On: " + creationDate.toString() + ", Published On: " + publicationDate.toString() + ", Author: " + author.getName() + ", State: " + state.toString() + ", Category: " + category.toString();
-    }
-
-    public int getId() { //Getters and Setters
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public State getState() {
-        return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    public User getAuthor() {
-        return author;
-    }
-
-    public LocalDateTime getPublicationDate() {
-        return publicationDate;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public List<Tags> getTags() {
-        return tags;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public void publicate() //apartir de aca podes cambiar lo que sea
-    {
-        this.state = State.PUBLICADO;
-        this.publicationDate = LocalDateTime.now();
-    }
-
-    public String visualize()
-    {
-        return toString();
-    }
-
-    public void depublicate()
-    {
+        this.title = Objects.requireNonNull(title);
+        this.author = Objects.requireNonNull(author);
+        this.body = body == null ? "" : body;
         this.state = State.BORRADOR;
-        this.publicationDate = null;
+        this.createdAt = LocalDateTime.now();
     }
 
-    public boolean isPublished()
-    {
-        return this.state == State.PUBLICADO;
+    // Getters básicos
+    public int getId() { return id; }
+    public String getTitle() { return title; }
+    public String getAuthor() { return author; }
+    public String getBody() { return body; }
+    public State getState() { return state; }
+    public Category getCategory() { return category; }
+    public List<Tags> getTags() { return Collections.unmodifiableList(tags); }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getPublishedAt() { return publishedAt; }
+    public int getViews() { return views; }
+    public int getLikes() { return likes; }
+
+    // Metodos de edicion
+    public void editTitle(String newTitle) { this.title = Objects.requireNonNull(newTitle); }
+    public void editBody(String newBody)   { this.body  = Objects.requireNonNullElse(newBody, ""); }
+
+    public void assignCategory(Category c) { this.category = Objects.requireNonNull(c); }
+
+    public void addTag(Tags t) {
+        if (t == null) return;
+        for (Tags e : tags) if (e.getName().equals(t.getName())) return;
+        tags.add(t);
     }
-    
 
+    public void removeTag(String name) {
+        tags.removeIf(t -> t.getName().equalsIgnoreCase(name));
+    }
 
+    public boolean publish() {
+        if (state == State.ELIMINADO) return false;
+        if (!validate()) return false;
+        state = State.PUBLICADO;
+        publishedAt = LocalDateTime.now();
+        return true;
+    }
 
+    public boolean markDeleted() {
+        if (state == State.ELIMINADO) return false;
+        state = State.ELIMINADO;
+        return true;
+    }
 
+    public boolean isPublished() { return state == State.PUBLICADO; }
 
-    
+    public void addView() { views++; }
+    public void like()    { likes++; }
 
+    // Validación minima para el contenido
+    public boolean validate() {
+        return title != null && !title.isBlank() && author != null && !author.isBlank();
+    }
 
+    public abstract String preview();
 
+    @Override public int compareTo(Content o) {
+        return this.title.compareToIgnoreCase(o.title);
+    }
+
+    @Override public String toString() {
+        return "#" + id + " [" + getClass().getSimpleName() + "] " + title + " (" + state + ")";
+    }
 }
