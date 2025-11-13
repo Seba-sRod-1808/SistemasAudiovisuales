@@ -2,5 +2,6 @@ public enum State
 {
     BORRADOR,
     PUBLICADO,
-    ELIMINADO
+    ELIMINADO,
+    ARCHIVADO
 }
