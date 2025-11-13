@@ -1,22 +1,26 @@
-import java.util.List;
-import java.util.Scanner;
+import javax.swing.*;
 
-public class CMSView 
-{
-    // Scanner para entrada de usuario
-    private Scanner scanner;
-    
-    // Referencia al controlador
-    private CMSController controlador;
+public class CMSView {
+    private CMSController controller;
+    private LoginFrame loginFrame;
 
-    public CMSView() 
-    {
-        this.scanner = new Scanner(System.in);
+    public CMSView(CMSController controller) {
+        this.controller = controller;
+        configurarLookAndFeel();
     }
 
-    public void setControlador(CMSController controlador) 
-    {
-        this.controlador = controlador;
+    private void configurarLookAndFeel() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            System.out.println("No se pudo configurar el Look and Feel");
+        }
     }
 
+    public void iniciar() {
+        SwingUtilities.invokeLater(() -> {
+            loginFrame = new LoginFrame(controller);
+            loginFrame.mostrar();
+        });
+    }
 }
